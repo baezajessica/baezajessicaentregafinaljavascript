@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', function() {
     var num1 = document.getElementById('num1');
     var num2 = document.getElementById('num2');
     var resultadoDiv = document.getElementById('resultado');
+    var historialDiv = document.getElementById('historial');
+    var themeButton = document.getElementById('themeButton');
 
     num1.value = 0;
     num2.value = 0;
@@ -24,25 +26,41 @@ document.addEventListener('DOMContentLoaded', function() {
         return true;
     }
 
-    window.calcular = function() {
+    function agregarAlHistorial(operacion, resultado) {
+        var p = document.createElement('p');
+        p.textContent = `${operacion}: ${resultado !== null ? resultado : 'Error'}`;
+        historialDiv.appendChild(p);
+    }
+
+    themeButton.addEventListener('click', function() {
+        document.body.classList.toggle('dark-theme');
+    });
+
+    window.calcular = function(operacion) {
         var numero1 = parseFloat(num1.value);
         var numero2 = parseFloat(num2.value);
 
         if (!validarEntradas(numero1, numero2)) { return; }
 
-        var resultados = [];
-        resultados.push({ operacion: 'Suma', resultado: sumar(numero1, numero2) });
-        resultados.push({ operacion: 'Resta', resultado: restar(numero1, numero2) });
-        resultados.push({ operacion: 'Multiplicación', resultado: multiplicar(numero1, numero2) });
-        resultados.push({ operacion: 'División', resultado: dividir(numero1, numero2) });
+        var resultado = null;
+        if (operacion === 'sumar') {
+            resultado = sumar(numero1, numero2);
+        } else if (operacion === 'restar') {
+            resultado = restar(numero1, numero2);
+        } else if (operacion === 'multiplicar') {
+            resultado = multiplicar(numero1, numero2);
+        } else if (operacion === 'dividir') {
+            resultado = dividir(numero1, numero2);
+        }
 
-        var resultadoHTML = resultados.map(function(res) {
-            return `<p>${res.operacion}: ${res.resultado !== null ? res.resultado : 'Error'}</p>`;
-        }).join('');
+        agregarAlHistorial(operacion.charAt(0).toUpperCase() + operacion.slice(1), resultado);
+        resultadoDiv.innerHTML = `<p>${operacion.charAt(0).toUpperCase() + operacion.slice(1)}: ${resultado !== null ? resultado : 'Error'}</p>`;
 
-        resultadoDiv.innerHTML = resultadoHTML;
-
-        Swal.fire({ title: 'Resultados', html: resultadoHTML, icon: 'success' });
-        console.lg("Resultados calculados: " + JSON.stringify(resultados));
+        Swal.fire({
+            title: 'Resultado',
+            text: `${operacion.charAt(0).toUpperCase() + operacion.slice(1)}: ${resultado !== null ? resultado : 'Error'}`,
+            icon: 'success'
+        });   
+        console.lg("Resultado calculado: " + operacion + " = " + resultado);
     };
 });
