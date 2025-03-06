@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var resultadoDiv = document.getElementById('resultado');
     var historialDiv = document.getElementById('historial');
     var themeButton = document.getElementById('themeButton');
+    var historial = JSON.parse(localStorage.getItem('historial')) || [];
 
     num1.value = 0;
     num2.value = 0;
@@ -25,12 +26,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return true;
     }
-
     function agregarAlHistorial(operacion, resultado) {
+        var operacionHistorial = {
+            operacion: operacion,
+            resultado: resultado !== null ? resultado : 'Error',
+            fecha: new Date().toLocaleString()
+        };
+        historial.push(operacionHistorial);
+        localStorage.setItem('historial', JSON.stringify(historial));
         var p = document.createElement('p');
-        p.textContent = `${operacion}: ${resultado !== null ? resultado : 'Error'}`;
+        p.textContent = `${operacion}: ${resultado !== null ? resultado : 'Error'} (${operacionHistorial.fecha})`;
         historialDiv.appendChild(p);
     }
+
+    function mostrarHistorial() {
+        historialDiv.innerHTML = ''; 
+        historial.forEach(item => {
+            var p = document.createElement('p');
+            p.textContent = `${item.operacion}: ${item.resultado} (${item.fecha})`;
+            historialDiv.appendChild(p);
+        });
+    }
+    mostrarHistorial();
 
     themeButton.addEventListener('click', function() {
         document.body.classList.toggle('dark-theme');
@@ -61,6 +78,14 @@ document.addEventListener('DOMContentLoaded', function() {
             text: `${operacion.charAt(0).toUpperCase() + operacion.slice(1)}: ${resultado !== null ? resultado : 'Error'}`,
             icon: 'success'
         });   
-        console.lg("Resultado calculado: " + operacion + " = " + resultado);
+        console.log("Resultado calculado: " + operacion + " = " + resultado);
     };
+    fetch('https://api.aws.com/simple-calculator')
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+        })
+        .catch(error => {
+            console.error('Error al obtener datos:', error);
+        });
 });
